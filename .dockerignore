@@ -1,0 +1,6 @@
+.git
+.gradle
+.idea
+build
+k8s
+helm
