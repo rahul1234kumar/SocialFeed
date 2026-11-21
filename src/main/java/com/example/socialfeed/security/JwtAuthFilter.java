@@ -6,7 +6,6 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.admin.ExpireDelegationTokenOptions;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.*;
@@ -16,7 +15,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.nio.charset.MalformedInputException;
+import java.security.SignatureException;
 
 @Component
 @RequiredArgsConstructor
@@ -41,14 +40,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             } catch (UsernameNotFoundException ex) {
 
                 log.warn("User not found: {}", ex.getMessage());
-                request.setAttribute("jwt.error", "User not found Authentication required");
+                request.setAttribute("jwt.error", "User not found ");
             } catch (MalformedJwtException ex) {
                 log.warn("Jwt malformed: {}", ex.getMessage());
-                request.setAttribute("jwt.error", "Jwt malformed Authentication required");
+                request.setAttribute("jwt.error", "Jwt malformed ");
             } catch (ExpiredJwtException ex) {
 
                 log.warn("Jwt expired: {}", ex.getMessage());
-                request.setAttribute("jwt.error", "Jwt expired Authentication required");
+                request.setAttribute("jwt.error", "Jwt expired ");
+            } catch (io.jsonwebtoken.security.SignatureException ex) {
+                log.warn("Jwt signature invalid: {}", ex.getMessage());
+                request.setAttribute("jwt.error", "Jwt signature invalid ");
             } catch (Exception ex) {
                 log.warn("JWT rejected: {}", ex.getMessage());
                 request.setAttribute("jwt.error", "Authentication required");

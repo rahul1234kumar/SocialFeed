@@ -26,6 +26,4 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleUserNameTaken(UserNameTaken ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", ex.getMessage()));
     }
-
-
 }
