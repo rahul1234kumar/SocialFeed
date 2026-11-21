@@ -4,3 +4,4 @@
 build
 k8s
 helm
+.env

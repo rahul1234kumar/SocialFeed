@@ -1,14 +1,22 @@
 spring:
   application:
     name: SocialFeed
+  config:
+    # Load KEY=VALUE pairs from ./.env if it exists (local development only).
+    # Real environment variables still win over anything in this file.
+    import: optional:file:.env[.properties]
   datasource:
-    url: jdbc:mysql://localhost:3306/socialfeed
-    username: root
-    password: root1234
+    # ${NAME:default} -> use NAME if set, else the default.
+    # ${NAME} with no default -> startup fails if NAME is missing (fail fast).
+    url: ${DB_URL:jdbc:mysql://localhost:3307/socialfeed}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      # Flyway owns the schema now. Hibernate only checks at startup that the
+      # entities match the tables, and fails fast if they don't.
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
@@ -26,5 +34,5 @@ management:
 
 app:
   jwt:
-    secret: socialfeed-secret-key-must-be-at-least-32-chars-long
-    expiration: 86400000
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION_MS:86400000}

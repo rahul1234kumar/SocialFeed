@@ -25,11 +25,17 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // Flyway: runs versioned SQL from src/main/resources/db/migration at startup
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
+    // MySQL support for Flyway (since Flyway 10 each database is a separate module)
+    runtimeOnly 'org.flywaydb:flyway-mysql'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     runtimeOnly 'com.mysql:mysql-connector-j'
+    // Formats Micrometer metrics in Prometheus text format at /actuator/prometheus
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
@@ -38,9 +44,15 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    // Testcontainers: starts a real MySQL in Docker for the tests
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+    testImplementation 'org.testcontainers:testcontainers-mysql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    // Every test run uses src/test/resources/application-test.yaml
+    systemProperty 'spring.profiles.active', 'test'
 }

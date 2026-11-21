@@ -22,4 +22,8 @@ public class GlobalExceptionHandler {
                 .forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));
         return ResponseEntity.badRequest().body(errors);
     }
+    @ExceptionHandler(UserNameTaken.class)
+    public ResponseEntity<Map<String, String>> handleUserNameTaken(UserNameTaken ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", ex.getMessage()));
+    }
 }

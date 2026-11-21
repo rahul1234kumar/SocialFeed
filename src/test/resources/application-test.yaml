@@ -1,0 +1,17 @@
+# Loaded on top of application.yaml when the "test" profile is active
+# (build.gradle turns it on for every test run).
+# Purpose: tests must not need a .env file, so CI can run them with only Docker.
+
+spring:
+  datasource:
+    # Placeholders only. @ServiceConnection replaces URL, username and password
+    # with the Testcontainers MySQL values at runtime.
+    username: overridden-by-testcontainers
+    password: overridden-by-testcontainers
+  jpa:
+    show-sql: false
+
+app:
+  jwt:
+    # A fixed, fake key that is only used in tests.
+    secret: test-only-jwt-secret-0123456789abcdef0123456789abcdef
