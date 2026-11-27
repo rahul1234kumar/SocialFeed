@@ -58,9 +58,9 @@ Config rules:
 
 Java (Rahul), epic ZNSM-6:
 - [x] P0-1 (ZNSM-7) Fix the register race condition (409, never 500)
-- [ ] P0-2 (ZNSM-8) Fix N+1 queries when listing posts
-- [ ] P0-3 (ZNSM-9) Stop swallowing JWT errors; return 401 with a JSON body
-- [ ] P0-4 (ZNSM-10) Cursor paging for `GET /api/posts` + your own `V2__` index migration (unblocked)
+- [x] P0-2 (ZNSM-8) Fix N+1 queries when listing posts
+- [x] P0-3 (ZNSM-9) Stop swallowing JWT errors; return 401 with a JSON body
+- [x] P0-4 (ZNSM-10) Cursor paging for `GET /api/posts` + `V2__` index migration
 - [ ] P0-5 (ZNSM-11) Permit `/actuator/prometheus` in `SecurityConfig` (unblocked)
 - [ ] P0-6 (ZNSM-12) Integration tests with Testcontainers, including a concurrent-register test (unblocked)
 
@@ -87,3 +87,11 @@ Config (Claude):
 - C-3 done: `micrometer-registry-prometheus`; `/actuator/prometheus` serves metrics (403 without a token until ZNSM-11).
 - C-4 done: Testcontainers 2.0.5 + `spring-boot-testcontainers`. `TestcontainersConfiguration` (MySQL 8.4 with `@ServiceConnection`), `application-test.yaml` with fake secrets, `spring.profiles.active=test` set in the Gradle test task. `contextLoads` now passes with no `.env` (verified), Flyway V1 runs inside the test container.
 - Next: Rahul does ZNSM-8 (N+1), ZNSM-9 (JWT errors), ZNSM-10 (paging + V2 index), ZNSM-11 (Prometheus permit), ZNSM-12 (tests). Phase 0 config work is complete.
+
+### 2026-11-28: Session 2
+- ZNSM-8 merged (PR #1): `@EntityGraph(attributePaths = "user")` on the post queries removes the N+1.
+- ZNSM-9 merged (PR #2): `JwtAuthFilter` logs the JWT failure reason and stores it in the `jwt.error` request attribute; the `AuthenticationEntryPoint` in `SecurityConfig` returns 401 + `WWW-Authenticate: Bearer` + JSON body. 403 handler deferred until roles exist.
+- ZNSM-10: Rahul wrote the controller, `CursorPageResponse` and the keyset queries; at Rahul's request Claude wrote `PostService.getPosts` (limit + 1 fetch, Base64 `createdAt|id` cursor, bad cursor -> 400) and `V2__add_posts_feed_index.sql` (`posts(created_at, id)`). Tested in Postman, including the same-timestamp tie-break.
+- Seeded the local DB with users p1..p10 (password = username, inserted directly because API validation needs 3/6 chars) and 2 posts each.
+- Taught: keyset vs offset paging, how `Pageable` becomes `LIMIT`, `List` vs `Slice` vs `Page` (count query), reading Spring library types, browsing the Docker MySQL from a GUI client.
+- Next: ZNSM-11 (permit `/actuator/prometheus`), ZNSM-12 (Testcontainers integration tests). Later: Adminer service in compose.

@@ -1,6 +1,7 @@
 package com.example.socialfeed.controller;
 
 import com.example.socialfeed.dto.request.CreatePostRequest;
+import com.example.socialfeed.dto.response.CursorPageResponse;
 import com.example.socialfeed.dto.response.PostResponse;
 import com.example.socialfeed.service.PostService;
 import jakarta.validation.Valid;
@@ -26,9 +27,16 @@ public class PostController {
                 .body(postService.createPost(request, userDetails.getUsername()));
     }
 
+    private static final int MAX_LIMIT = 100;
+
+    // GET /api/posts?limit=20                 -> first page
+    // GET /api/posts?limit=20&cursor=<token>  -> the page after <token>
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
+    public ResponseEntity<CursorPageResponse<PostResponse>> getAllPosts(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "20") int limit) {
+        int safeLimit = Math.clamp(limit, 1, MAX_LIMIT);
+        return ResponseEntity.ok(postService.getPosts(cursor, safeLimit));
     }
 
     @GetMapping("/my")
