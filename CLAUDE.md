@@ -61,8 +61,8 @@ Java (Rahul), epic ZNSM-6:
 - [x] P0-2 (ZNSM-8) Fix N+1 queries when listing posts
 - [x] P0-3 (ZNSM-9) Stop swallowing JWT errors; return 401 with a JSON body
 - [x] P0-4 (ZNSM-10) Cursor paging for `GET /api/posts` + `V2__` index migration
-- [ ] P0-5 (ZNSM-11) Permit `/actuator/prometheus` in `SecurityConfig` (unblocked)
-- [ ] P0-6 (ZNSM-12) Integration tests with Testcontainers, including a concurrent-register test (unblocked)
+- [x] P0-5 (ZNSM-11) Permit `/actuator/prometheus` in `SecurityConfig`
+- [x] P0-6 (ZNSM-12) Integration tests with Testcontainers, including a concurrent-register test
 
 Config (Claude):
 - [x] C-1 docker-compose MySQL + secrets moved to `.env`
@@ -94,4 +94,6 @@ Config (Claude):
 - ZNSM-10: Rahul wrote the controller, `CursorPageResponse` and the keyset queries; at Rahul's request Claude wrote `PostService.getPosts` (limit + 1 fetch, Base64 `createdAt|id` cursor, bad cursor -> 400) and `V2__add_posts_feed_index.sql` (`posts(created_at, id)`). Tested in Postman, including the same-timestamp tie-break.
 - Seeded the local DB with users p1..p10 (password = username, inserted directly because API validation needs 3/6 chars) and 2 posts each.
 - Taught: keyset vs offset paging, how `Pageable` becomes `LIMIT`, `List` vs `Slice` vs `Page` (count query), reading Spring library types, browsing the Docker MySQL from a GUI client.
-- Next: ZNSM-11 (permit `/actuator/prometheus`), ZNSM-12 (Testcontainers integration tests). Later: Adminer service in compose.
+- ZNSM-11 merged (PR #3): `/actuator/prometheus` permitted. Taught: Prometheus pull model, Micrometer, why metrics stay off the public network (management port / ingress rules later).
+- ZNSM-12: at Rahul's request Claude wrote the integration tests in `src/test/java/.../integration/` (`IntegrationTestBase` + Auth, Security, Post tests; MockMvc + Testcontainers MySQL, tables wiped before each test). 19 tests pass, including 10 concurrent registers -> exactly one 200 and nine 409, and a full cursor walk.
+- Phase 0 complete. Next: Phase 1 (split into user-service + post-service + gateway). Later: Adminer service in compose.
